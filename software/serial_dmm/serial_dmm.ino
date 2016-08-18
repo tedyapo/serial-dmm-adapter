@@ -23,6 +23,11 @@ public:
     this->port->begin(2400);
   }
 
+  void sync()
+  {
+    start_frame_seen = false;
+  }
+
   bool poll()
   {
     while(1){
@@ -286,6 +291,7 @@ void loop()
   if (Serial.available()){
     result_format = Serial.read();
     sample_pending = true;
+    dmm.sync();
   }
 
   if (dmm.poll() && sample_pending){
