@@ -278,6 +278,17 @@ module case_top()
             height/2]);
     }
 
+    // solder_bump recess
+    solder_bump_thickness = 1.25;
+    corner_size = 5;
+    translate([-length/2 + usb_lip + corner_size,
+               -board_width/2,
+               height/2 - solder_bump_thickness]){
+      cube([board_length - 2*corner_size,
+            board_width,
+            height/2]);
+    }
+
     // DB9 opening
     translate([length/2-connector_recess, 0, height/2]){
       rotate([0, 90, 0]){
