@@ -26,6 +26,15 @@ public:
   void sync()
   {
     start_frame_seen = false;
+
+    // toss anything in the recieve buffer for the next 250ms
+    //   to ensure fresh data
+    unsigned long start = millis();
+    do {
+      while (port->available() > 0){
+        byte bitbucket = port->read();
+      }
+    } while ((millis() - start) < 250);
   }
 
   bool poll()
