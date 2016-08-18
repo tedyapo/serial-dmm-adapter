@@ -259,6 +259,16 @@ module case_top()
       cube([connector_length+epsilon+tol, connector_width, connector_height]);
     }
 
+    // wire channel
+    translate([-length/2 + usb_lip,
+               -board_width/2 + board_lip,
+               height - connector_height]){
+      cube([length - board_lip,
+            board_width - 2*board_lip,
+            height/2]);
+    }
+
+
     // below-board hollow
     translate([-length/2 + usb_lip,
                -board_width/2 + board_lip,
