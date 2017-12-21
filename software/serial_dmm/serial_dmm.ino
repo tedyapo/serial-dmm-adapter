@@ -2,6 +2,7 @@
 // Copyright (C) 2016 Theodore C. Yapo
 
 #include <SoftwareSerial.h>
+#include <EEPROM.h>
 
 class DMM
 {
@@ -278,11 +279,13 @@ private:
   }
 };
 
+const int ID_location = 0;
+int ID = 0;
 int rx_pin = 10;
 SoftwareSerial dmm_port(rx_pin, 11); // RX, TX (note: TX not used)
 DMM dmm;
 byte sample_pending;
-byte result_format;
+byte command;
 
 void setup()
 {
@@ -290,6 +293,9 @@ void setup()
   while(!Serial){
     // busy wait
   }
+  
+  // retrieve ID from EEPROM
+  EEPROM.get(ID_location, ID);
 
   dmm.setPort(dmm_port, rx_pin);
   sample_pending = false;
@@ -298,14 +304,23 @@ void setup()
 void loop()
 {
   if (Serial.available()){
-    result_format = Serial.read();
+    command = Serial.read();
+    if ('I' == command){
+      Serial.println(ID);
+      return;
+    }
+    if ('W' == command){
+      ID = Serial.parseInt();
+      EEPROM.put(ID_location, ID);
+      return;
+    }
     sample_pending = true;
     dmm.sync();
   }
 
   if (dmm.poll() && sample_pending){
     sample_pending = false;
-    switch(result_format){
+    switch(command){
     case 'n': // number only
     default:
       Serial.println(dmm.asciiValue());
@@ -313,6 +328,9 @@ void loop()
     case 'u': // number + units
       Serial.print(dmm.asciiValue());
       Serial.print(" ");
+      Serial.println(dmm.units());
+      break;
+    case 'U': // units only
       Serial.println(dmm.units());
       break;
     case 'b': // low battery status
